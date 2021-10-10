@@ -48,24 +48,28 @@ class Minimax:
         for c in range(self.KOLOM_BOARD-3):
             for r in range(self.BARIS_BOARD):
                 if board[r,c] == piece and board [r,c+1] == piece and board[r,c+2] == piece and board[r,c+3] == piece:
+                    #print("horizontal win")
                     return True
 
         # Check valid vertical locations for win
         for c in range(self.KOLOM_BOARD):
-            for r in range(self.BARIS_BOARD-3):
-                if board[r,c] == piece and board [r+1,c] == piece and board[r+2,c] == piece and board[r+3,c] == piece:
+            for r in range(self.BARIS_BOARD-1, self.BARIS_BOARD-5, -1):
+                if board[r,c] == piece and board[r-1,c] == piece and board[r-2,c] == piece and board[r-3,c] == piece:
+                    #print(piece, "vertical win")
                     return True
 
         # Check valid positive diagonal locations for win
         for c in range(self.KOLOM_BOARD-3):
-            for r in range(self.BARIS_BOARD-3):
-                if board[r,c] == piece and board [r+1,c+1] == piece and board[r+2,c+2] == piece and board[r+3,c+3] == piece:
+            for r in range(self.BARIS_BOARD-1, self.BARIS_BOARD-5, -1):
+                if board[r,c] == piece and board [r-1,c+1] == piece and board[r-2,c+2] == piece and board[r-3,c+3] == piece:
+                    #print("diagonal positif win")
                     return True
 
         # check valid negative diagonal locations for win
         for c in range(self.KOLOM_BOARD-3):
-            for r in range(3, self.BARIS_BOARD):
-                if board[r,c] == piece and board [r-1,c+1] == piece and board[r-2,c+2] == piece and board[r-3,c+3] == piece:
+            for r in range(self.BARIS_BOARD-4, self.BARIS_BOARD, -1):
+                if board[r,c] == piece and board [r+1,c+1] == piece and board[r+2,c+2] == piece and board[r+3,c+3] == piece:
+                    #print(("diagonal negatif win"))
                     return True
 
     def evaluate_window(self, window, piece):
@@ -135,24 +139,20 @@ class Minimax:
     def minimax(self, board, depth, alpha, beta, maximisingPlayer):
         valid_locations = self.get_kolom_valid(board)
         #print("valid_location",valid_locations)
-        is_terminal = self.winning_move(board, 1)\
-                        or self.winning_move(board, 2)\
-                        or self.winning_move(board, 3)\
-                        or self.winning_move(board, 4)\
-                        or len(valid_locations) == 0
+        is_terminal = self.winning_move(board, 1) or self.winning_move(board, 2) or self.winning_move(board, 3) or self.winning_move(board, 4) or len(valid_locations) == 0
         #is_terminal = is_terminal_node(board)
         if depth == 0 or is_terminal:
             if is_terminal:
                 # Weight the bot winning really high
-                if self.winning_move(board, 3) or self.winning_move(board, 2):
-                    print("self.winning_move(board, 3) or self.winning_move(board, 2)")
+                if ((self.winning_move(board, 3)) or (self.winning_move(board, 2))):
+                    #print("self.winning_move(board, 3) or self.winning_move(board, 2)")
                     return (None, 10000000)
                 # Weight the human winning really low
-                elif self.winning_move(board, 1) or self.winning_move(board, 4):
-                    print("self.winning_move(board, 1) or self.winning_move(board, 4)")
+                elif ((self.winning_move(board, 1)) or (self.winning_move(board, 4))):
+                    #print("self.winning_move(board, 1) or self.winning_move(board, 4)")
                     return (None, -10000000)
                 else: # No more valid moves
-                    print("No valid moves")
+                    #print("No valid moves")
                     return (None, 0)
             # Return the bot's score
             else:
@@ -212,7 +212,6 @@ class Minimax:
             for j in range (self.KOLOM_BOARD):
                 if(board_asli[i, j] == self.PIECE_KOSONG):
                     self.board[i, j] = 0
-                    #print(self.board)
                 elif(board_asli[i, j] == Piece(player_shape, player_color)):
                     self.board[i, j] = 1
                 elif(board_asli[i, j] == Piece(player_shape, enemy_color)):
@@ -234,22 +233,20 @@ class Minimax:
             self.enemy = state.players[0]
         else:
             self.enemy = state.players[1]
-        #print("shape", self.player.shape)
-        #print("quota", self.player.quota)
-        print(self.board)
+        #print(self.board)
         if(self.player.quota[self.player.shape] > 0):
             kolomnya, scorenya = self.minimax(self.board, 4, -math.inf, math.inf, True)
-            print("kolomnya, shape = ",kolomnya,self.player.shape)
+            #print("kolomnya, shape = ",kolomnya,self.player.shape)
             return kolomnya, self.player.shape
         else:
             kolomnya, scorenya = self.minimax(self.board, 4, -math.inf, math.inf, False)
-            print("kolomnya, shape = ",kolomnya,self.player.shape)
+            #print("kolomnya, shape = ",kolomnya,self.player.shape)
             return kolomnya, self.enemy.shape
         #return (random.randint(0, state.self.BARIS_BOARD), random.choice([ShapeConstant.CROSS, ShapeConstant.CIRCLE]))
 
     def find(self, state: State, n_player: int, thinking_time: float) -> Tuple[str, str]:
         self.thinking_time = time() + thinking_time
-        print("n_player", n_player)
+        #print("n_player", n_player)
 
         best_movement = self.Solusi(state, n_player, thinking_time) #minimax algorithm
         return best_movement
