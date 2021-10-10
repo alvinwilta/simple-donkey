@@ -10,6 +10,7 @@ from typing import Tuple, List
 
 class Minimax:
     def __init__(self):
+        self.board = self.create_board_kosong()
         self.BARIS_BOARD = 6
         self.KOLOM_BOARD = 7
         self.PIECE_ROUND_BIRU = Piece(ShapeConstant.CIRCLE, ColorConstant.BLUE)
@@ -19,12 +20,12 @@ class Minimax:
         self.PIECE_KOSONG = Piece(ShapeConstant.BLANK, ColorConstant.BLACK)
         pass
 
-    def create_board(self):
-        board = np.zeros((ROW_COUNT, COLUMN_COUNT))
-    return board
+    def create_board_kosong(self):
+        board = np.zeros((6, 7))
+        return board
 
     def is_valid(self, board, kolom):
-        return board[self.BARIS_BOARD - 1, kolom] == self.PIECE_KOSONG
+        return board[self.BARIS_BOARD - 1, kolom] == 0
 
     def get_kolom_valid(self, board):
         sel_valid = []
@@ -38,7 +39,7 @@ class Minimax:
     
     def get_baris_valid(self, board, kol):
         for bar in range(self.BARIS_BOARD):
-            if board[bar,kol] == Piece(ShapeConstant.BLANK, ColorConstant.BLACK):
+            if board[bar,kol] == 0:
                 return bar
 
     # Check to see if the game has been won
@@ -193,10 +194,30 @@ class Minimax:
                 if alpha >= beta:
                     break
             return column, value
-
+    
+    def salin_board_dari_state(self, board_asli):
+        for i in range (self.BARIS_BOARD):
+            for j in range (self.KOLOM_BOARD):
+                print(i,j)
+                if(board_asli[i, j] == self.PIECE_KOSONG):
+                    self.board[i, j] = 0
+                    #print(self.board)
+                elif(board_asli[i, j] == self.PIECE_CROSS_MERAH):
+                    self.board[i, j] = 1
+                elif(board_asli[i, j] == self.PIECE_ROUND_MERAH):
+                    self.board[i, j] = 2
+                elif(board_asli[i, j] == self.PIECE_ROUND_BIRU):
+                    self.board[i, j] = 3
+                elif(board_asli[i, j] == self.PIECE_CROSS_BIRU):
+                    self.board[i, j] = 4
+                else:
+                    self.board[i, j] = 0
+        return self.board
 
     def Solusi(self, state, n_player, thinking_time):
-        return self.minimax(state.board, 4, -math.inf, math.inf, True)
+        self.board = self.salin_board_dari_state(state.board)
+        print(self.board)
+        return self.minimax(self.board, 4, -math.inf, math.inf, True)
         #return (random.randint(0, state.self.BARIS_BOARD), random.choice([ShapeConstant.CROSS, ShapeConstant.CIRCLE]))
 
     def find(self, state: State, n_player: int, thinking_time: float) -> Tuple[str, str]:
