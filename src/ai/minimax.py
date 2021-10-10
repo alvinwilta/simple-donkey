@@ -38,7 +38,7 @@ class Minimax:
         boardnya[row,col] = piece
     
     def get_baris_valid(self, board, kol):
-        for bar in range(self.BARIS_BOARD):
+        for bar in range(self.BARIS_BOARD - 1, -1, -1):
             if board[bar,kol] == 0:
                 return bar
 
@@ -156,7 +156,7 @@ class Minimax:
                     return (None, 0)
             # Return the bot's score
             else:
-                return (None, self.score_position(board, 3)+self.score_position(board, 2))
+                return (None, self.score_position(board, self.piece_enemy[0]) + self.score_position(board, self.piece_enemy[1]))
 
         if maximisingPlayer:
             value = -math.inf
@@ -223,6 +223,8 @@ class Minimax:
                     self.board[i, j] = 4
                 else:
                     self.board[i, j] = 0
+        self.piece_player = [1, 4]
+        self.piece_enemy = [3, 2]
         return self.board
 
     def Solusi(self, state, n_player, thinking_time):
