@@ -237,9 +237,14 @@ class Minimax:
         #print("shape", self.player.shape)
         #print("quota", self.player.quota)
         print(self.board)
-        kolomnya, scorenya = self.minimax(self.board, 4, -math.inf, math.inf, True)
-        print("kolomnya, shape = ",kolomnya,self.player.shape)
-        return kolomnya, self.player.shape
+        if(self.player.quota[self.player.shape] > 0):
+            kolomnya, scorenya = self.minimax(self.board, 4, -math.inf, math.inf, True)
+            print("kolomnya, shape = ",kolomnya,self.player.shape)
+            return kolomnya, self.player.shape
+        else:
+            kolomnya, scorenya = self.minimax(self.board, 4, -math.inf, math.inf, False)
+            print("kolomnya, shape = ",kolomnya,self.player.shape)
+            return kolomnya, self.enemy.shape
         #return (random.randint(0, state.self.BARIS_BOARD), random.choice([ShapeConstant.CROSS, ShapeConstant.CIRCLE]))
 
     def find(self, state: State, n_player: int, thinking_time: float) -> Tuple[str, str]:
