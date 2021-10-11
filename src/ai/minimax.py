@@ -5,6 +5,7 @@ import math
 
 from src.constant import ShapeConstant, ColorConstant, GameConstant
 from src.model import State, Piece
+import multiprocessing
 
 from typing import Tuple, List
 
@@ -67,7 +68,7 @@ class Minimax:
 
         # check valid negative diagonal locations for win
         for c in range(self.KOLOM_BOARD-3):
-            for r in range(self.BARIS_BOARD-4, self.BARIS_BOARD, -1):
+            for r in range(self.BARIS_BOARD-6, self.BARIS_BOARD-4):
                 if board[r,c] == piece and board [r+1,c+1] == piece and board[r+2,c+2] == piece and board[r+3,c+3] == piece:
                     #print(("diagonal negatif win"))
                     return True
@@ -100,38 +101,39 @@ class Minimax:
         score = 0
 
         # Score centre column
-        centre_array = [int(i) for i in list(board[:, self.BARIS_BOARD // 2])]
+        centre_array = [int(i) for i in list(board[:, self.KOLOM_BOARD // 2])]
         centre_count = centre_array.count(piece)
         score += centre_count * 3
 
         # Score horizontal positions
-        for r in range(self.BARIS_BOARD):
+        for r in range(self.BARIS_BOARD-1, -1, -1):
             row_array = [int(i) for i in list(board[r, :])]
-            for c in range(self.BARIS_BOARD - 3):
+            for c in range(self.KOLOM_BOARD - 3):
                 # Create a horizontal window of 4
                 window = row_array[c:c + 4]
                 score += self.evaluate_window(window, piece)
 
         # Score vertical positions
-        for c in range(self.BARIS_BOARD):
+        for c in range(self.KOLOM_BOARD):
             col_array = [int(i) for i in list(board[:, c])]
-            for r in range(self.BARIS_BOARD - 3):
+            for r in range(self.BARIS_BOARD-1, self.BARIS_BOARD-4, -1):
                 # Create a vertical window of 4
-                window = col_array[r:r + 4]
+                window = col_array[r:r - 4]
                 score += self.evaluate_window(window, piece)
 
         # Score positive diagonals
-        for r in range(self.BARIS_BOARD - 3):
-            for c in range(self.BARIS_BOARD - 3):
-                # Create a positive diagonal window of 4
-                window = [board[r + i, c + i] for i in range(4)]
+        for r in range(self.BARIS_BOARD-1, self.BARIS_BOARD-5, -1):
+            for c in range(self.KOLOM_BOARD-3):
+                #Diagonal positif sebesar 4
+                window = [board[r-i, c+i] for i in range(4)]
                 score += self.evaluate_window(window, piece)
+        
 
         # Score negative diagonals
-        for r in range(self.BARIS_BOARD - 3):
-            for c in range(self.BARIS_BOARD - 3):
+        for r in range(self.BARIS_BOARD-1, self.BARIS_BOARD-4, -1):
+            for c in range(self.KOLOM_BOARD-3):
                 # Create a negative diagonal window of 4
-                window = [board[r + 3 - i, c + i] for i in range(4)]
+                window = [board[r - 3 + i, c + i] for i in range(4)]
                 score += self.evaluate_window(window, piece)
         return score
 
@@ -226,7 +228,7 @@ class Minimax:
         self.piece_enemy = [3, 2]
         return self.board
 
-    def Solusi(self, state, n_player, thinking_time):
+    def Solusi(self, state, n_player, thinking_time, queue):
         self.board = self.salin_board_dari_state(state.board, n_player)
         self.player = state.players[n_player]
         if(n_player == 1):
@@ -237,16 +239,34 @@ class Minimax:
         if(self.player.quota[self.player.shape] > 0):
             kolomnya, scorenya = self.minimax(self.board, 4, -math.inf, math.inf, True)
             #print("kolomnya, shape = ",kolomnya,self.player.shape)
-            return kolomnya, self.player.shape
+            queue.put(kolomnya)
+            queue.put(self.player.shape)
+            #return queue
         else:
             kolomnya, scorenya = self.minimax(self.board, 4, -math.inf, math.inf, False)
             #print("kolomnya, shape = ",kolomnya,self.player.shape)
-            return kolomnya, self.enemy.shape
+            queue.put(kolomnya)
+            queue.put(self.enemy.shape)
+            #return kolomnya, self.enemy.shape
         #return (random.randint(0, state.self.BARIS_BOARD), random.choice([ShapeConstant.CROSS, ShapeConstant.CIRCLE]))
 
     def find(self, state: State, n_player: int, thinking_time: float) -> Tuple[str, str]:
         self.thinking_time = time() + thinking_time
-        #print("n_player", n_player)
+        queue = multiprocessing.Queue()
+        action_process = multiprocessing.Process(target=self.Solusi, args=(state, n_player, thinking_time, queue,))
+        action_process.start()
+        #Timeout 3 detik
+        action_process.join(timeout=3)
 
-        best_movement = self.Solusi(state, n_player, thinking_time) #minimax algorithm
-        return best_movement
+        # We send a signal that the other thread should stop.
+        action_process.terminate()
+        
+        #waktu habis, random saja
+        if queue.qsize() == 0:
+            return (random.randint(0, state.board.col), random.choice([ShapeConstant.CROSS, ShapeConstant.CIRCLE]))
+        #best_movement = self.Solusi(state, n_player, thinking_time) #minimax algorithm
+        else:
+            a = queue.get(0)
+            b = queue.get(0)
+            print(a,b)
+            return a,b
