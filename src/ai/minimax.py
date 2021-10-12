@@ -43,7 +43,7 @@ class Minimax:
             if board[bar,kol] == 0:
                 return bar
 
-    # Check to see if the game has been won
+    # Mengecek apabila ada langkah kemenangan dengan pion yang sama persis
     def winning_move(self, board, piece):
         # Check valid horizontal locations for win
         for c in range(self.KOLOM_BOARD-3):
@@ -73,37 +73,76 @@ class Minimax:
                     #print(("diagonal negatif win"))
                     return True
 
+    #Mengecek apabila ada kemenangan yang dikarenakan warna yang sama atau shape yang sama
+    def winning_by_element(self, board, piece):
+        #print("piece dalam wbe",piece)
+        if (type(piece) is list):
+            #print("piecenya list:",type(piece) is list)
+            for c in range(self.KOLOM_BOARD-3):
+                for r in range(self.BARIS_BOARD):
+                    if (board[r,c] in piece) and (board [r,c+1] in piece) and (board[r,c+2] in piece) and (board[r,c+3] in piece):
+                        print("horizontal win",piece)
+                        return True
+
+            # Check valid vertical locations for win
+            for c in range(self.KOLOM_BOARD):
+                for r in range(self.BARIS_BOARD-1, self.BARIS_BOARD-5, -1):
+                    if (board[r,c] in piece) and (board[r-1,c] in piece) and (board[r-2,c] in piece) and (board[r-3,c] in piece):
+                        # print(board[r,c])
+                        # print(board[r-1,c])
+                        # print(board[r-2,c])
+                        # print(board[r-3,c])
+                        print("vertical win",piece)
+                        return True
+
+            # Check valid positive diagonal locations for win
+            for c in range(self.KOLOM_BOARD-3):
+                for r in range(self.BARIS_BOARD-1, self.BARIS_BOARD-5, -1):
+                    if (board[r,c] in piece) and (board [r-1,c+1] in piece) and (board[r-2,c+2] in piece) and (board[r-3,c+3] in piece):
+                        print("diagonal positif win", piece)
+                        return True
+
+            # check valid negative diagonal locations for win
+            for c in range(self.KOLOM_BOARD-3):
+                for r in range(self.BARIS_BOARD-6, self.BARIS_BOARD-4):
+                    if (board[r,c] in piece) and (board [r+1,c+1] in piece) and (board[r+2,c+2] in piece) and (board[r+3,c+3] in piece):
+                        print(("diagonal negatif win"),piece)
+                        return True
+        else:
+            return False
+
     def evaluate_window(self, window, piece):
         score = 0
-        # Switch scoring based on turn
-        #opp_piece = PLAYER_PIECE
-        #if jenis == "bentuk":
-        #    opp_piece = self.PIECE_KOSONG
-
-        # Prioritise a winning move
-        # Minimax makes this less important
-        #if window.count(piece) == 4:
-         #   score += 100
-        # Make connecting 3 second priority
-        if window.count(piece) == 3 and window.count(0) == 1:
-            score += 5
-        # Make connecting 2 third priority
-        elif window.count(piece) == 2 and window.count(0) == 2:
-            score += 2
-        # Prioritise blocking an opponent's winning move (but not over bot winning)
-        # Minimax makes this less important
-        #if window.count(opp_piece) == 3 and window.count(EMPTY) == 1:
-         #   score -= 4
-
+        if piece is list:
+            # Prioritaskan 3 piece terurut
+            if self.hitung_element_beda(window,piece[0], piece[1]) == 3 \
+                and window.count(0) == 1:
+                score += 5
+            # Prioritaskan 2 piece terurut
+            elif self.hitung_element_beda(window,piece[0], piece[1]) == 2 \
+                and window.count(0) == 2:
+                score += 2
+        elif piece is int:
+            # Prioritaskan 3 piece terurut
+            if window.count(piece) == 3 and window.count(0) == 1:
+                score += 5
+            # Prioritaskan 2 piece terurut
+            elif window.count(piece) == 2 and window.count(0) == 2:
+                score += 2
         return score
+
+    def hitung_element_beda(self, senarai, element1, element2):
+        return (senarai.count(element1) + senarai.count(element2))
 
     def score_position(self, board, piece):
         score = 0
 
         # Score centre column
-        centre_array = [int(i) for i in list(board[:, self.KOLOM_BOARD // 2])]
-        centre_count = centre_array.count(piece)
-        score += centre_count * 3
+        if (type(piece) is int):
+            #print("piecenya integer")
+            centre_array = [int(i) for i in list(board[:, self.KOLOM_BOARD // 2])]
+            centre_count = centre_array.count(piece)
+            score += centre_count * 3
 
         # Score horizontal positions
         for r in range(self.BARIS_BOARD-1, -1, -1):
@@ -138,27 +177,61 @@ class Minimax:
         return score
 
     # Pick the best move by looking at all possible future moves and comparing their scores
-    def minimax(self, board, depth, alpha, beta, maximisingPlayer):
+    def minimax(self, board, depth, alpha, beta, maximisingPlayer, piece):
         valid_locations = self.get_kolom_valid(board)
         #print("valid_location",valid_locations)
-        is_terminal = self.winning_move(board, 1) or self.winning_move(board, 2) or self.winning_move(board, 3) or self.winning_move(board, 4) or len(valid_locations) == 0
+        is_terminal = self.winning_move(board, 1) \
+                        or self.winning_move(board, 2) \
+                        or self.winning_move(board, 3) \
+                        or self.winning_move(board, 4) \
+                        or self.winning_by_element(board, [1,4]) \
+                        or self.winning_by_element(board, [2,3]) \
+                        or self.winning_by_element(board, [1,2]) \
+                        or self.winning_by_element(board, [3,4]) \
+                        or len(valid_locations) == 0
         #is_terminal = is_terminal_node(board)
         if depth == 0 or is_terminal:
             if is_terminal:
+                if ((self.winning_move(board, 1)) \
+                    or (self.winning_move(board, 4))) \
+                    or (self.winning_by_element(board, [1,4])) \
+                    or (self.winning_by_element(board, [1,2])) :
                 # Weight the bot winning really high
-                if ((self.winning_move(board, 3)) or (self.winning_move(board, 2))):
                     #print("self.winning_move(board, 3) or self.winning_move(board, 2)")
+                    # print("Menang karena winning move 3:",self.winning_move(board, 3))
+                    # print("Menang karena winning move 2:",self.winning_move(board, 2))
+                    # print("Menang karena winning by element [2,3]:", self.winning_by_element(board, [2,3]))
+                    # print("Menang karena winning by element [3,4]:", self.winning_by_element(board, [3,4]))
                     return (None, 10000000)
+                
                 # Weight the human winning really low
-                elif ((self.winning_move(board, 1)) or (self.winning_move(board, 4))):
+                elif ((self.winning_move(board, 3)) \
+                    or (self.winning_move(board, 2))) \
+                    or (self.winning_by_element(board, [2,3])) \
+                    or (self.winning_by_element(board, [3,4])):
                     #print("self.winning_move(board, 1) or self.winning_move(board, 4)")
+                    # if(self.winning_by_element(board, [1,4])):
+                    #     print("self.winning_by_element(board, [1,4])", self.winning_by_element(board, [1, 4]))
+                    # if(self.winning_by_element(board, [1,2])):
+                    #     print("self.winning_by_element(board, [1,2])",self.winning_by_element(board, [1,2]))
                     return (None, -10000000)
                 else: # No more valid moves
                     #print("No valid moves")
                     return (None, 0)
             # Return the bot's score
             else:
-                return (None, self.score_position(board, self.piece_enemy[0]) + self.score_position(board, self.piece_enemy[1]))
+                if(piece == self.player.shape):
+                    return (None, \
+                        self.score_position(board, 1) \
+                        + self.score_position(board, 4)\
+                        + self.score_position(board, [1,4]) \
+                        + self.score_position(board, [1,2]))
+                else:
+                    return (None, \
+                        self.score_position(board, 3) \
+                        + self.score_position(board, 2)\
+                        + self.score_position(board, [2,3]) \
+                        + self.score_position(board, [3,4]))
 
         if maximisingPlayer:
             value = -math.inf
@@ -169,8 +242,13 @@ class Minimax:
                 # Create a copy of the board
                 b_copy = board.copy()
                 # Drop a piece in the temporary board and record score
-                self.taruh_piece(b_copy, row, col, 3)
-                new_score = self.minimax(b_copy, depth-1, alpha, beta, False)[1]
+                if (piece == self.player.shape):
+                    self.taruh_piece(b_copy, row, col, 1)
+                else:
+                    self.taruh_piece(b_copy, row, col, 2)
+                new_score = self.minimax(b_copy, depth-1, alpha, beta, False, piece)[1]
+                #print("score di max, kol:", new_score, col)
+                #print(b_copy)
                 if new_score > value:
                     value = new_score
                     # Make 'column' the best scoring column we can get
@@ -189,8 +267,13 @@ class Minimax:
                 # Create a copy of the board
                 b_copy = board.copy()
                 # Drop a piece in the temporary board and record score
-                self.taruh_piece(b_copy, row, col, 1)
-                new_score = self.minimax(b_copy, depth-1, alpha, beta, True)[1]
+                if (piece == self.player.shape):
+                    self.taruh_piece(b_copy, row, col, 3)
+                else:
+                    self.taruh_piece(b_copy, row, col, 4)
+                new_score = self.minimax(b_copy, depth-1, alpha, beta, True, piece)[1]
+                #print("score di min, kol:", new_score, col)
+                #print(b_copy)
                 if new_score < value:
                     value = new_score
                     # Make 'column' the best scoring column we can get
@@ -237,13 +320,13 @@ class Minimax:
             self.enemy = state.players[1]
         #print(self.board)
         if(self.player.quota[self.player.shape] > 0):
-            kolomnya, scorenya = self.minimax(self.board, 4, -math.inf, math.inf, True)
+            kolomnya, scorenya = self.minimax(self.board, 4, -math.inf, math.inf, True, self.player.shape)
             #print("kolomnya, shape = ",kolomnya,self.player.shape)
             queue.put(kolomnya)
             queue.put(self.player.shape)
             #return queue
         else:
-            kolomnya, scorenya = self.minimax(self.board, 4, -math.inf, math.inf, False)
+            kolomnya, scorenya = self.minimax(self.board, 4, -math.inf, math.inf, True, self.enemy.shape)
             #print("kolomnya, shape = ",kolomnya,self.player.shape)
             queue.put(kolomnya)
             queue.put(self.enemy.shape)
@@ -269,4 +352,6 @@ class Minimax:
             a = queue.get(0)
             b = queue.get(0)
             print(a,b)
+            if (a == None):
+                return (random.randint(0, state.board.col), b)
             return a,b
