@@ -142,7 +142,7 @@ class Minimax:
             #print("piecenya integer")
             centre_array = [int(i) for i in list(board[:, self.KOLOM_BOARD // 2])]
             centre_count = centre_array.count(piece)
-            score += centre_count * 3
+            score += centre_count * 8
 
         # Score horizontal positions
         for r in range(self.BARIS_BOARD-1, -1, -1):
@@ -193,9 +193,9 @@ class Minimax:
         if depth == 0 or is_terminal:
             if is_terminal:
                 if ((self.winning_move(board, 1)) \
-                    or (self.winning_move(board, 4))) \
+                    or (self.winning_move(board, 4)) \
                     or (self.winning_by_element(board, [1,4])) \
-                    or (self.winning_by_element(board, [1,2])) :
+                    or (self.winning_by_element(board, [1,2]))) :
                 # Weight the bot winning really high
                     #print("self.winning_move(board, 3) or self.winning_move(board, 2)")
                     # print("Menang karena winning move 3:",self.winning_move(board, 3))
@@ -206,9 +206,9 @@ class Minimax:
                 
                 # Weight the human winning really low
                 elif ((self.winning_move(board, 3)) \
-                    or (self.winning_move(board, 2))) \
+                    or (self.winning_move(board, 2)) \
                     or (self.winning_by_element(board, [2,3])) \
-                    or (self.winning_by_element(board, [3,4])):
+                    or (self.winning_by_element(board, [3,4]))):
                     #print("self.winning_move(board, 1) or self.winning_move(board, 4)")
                     # if(self.winning_by_element(board, [1,4])):
                     #     print("self.winning_by_element(board, [1,4])", self.winning_by_element(board, [1, 4]))
@@ -222,16 +222,16 @@ class Minimax:
             else:
                 if(piece == self.player.shape):
                     return (None, \
-                        self.score_position(board, 1) \
+                        (depth+1)*(self.score_position(board, 1) \
                         + self.score_position(board, 4)\
                         + self.score_position(board, [1,4]) \
-                        + self.score_position(board, [1,2]))
+                        + self.score_position(board, [1,2])))
                 else:
                     return (None, \
-                        self.score_position(board, 3) \
+                        (depth+1)*(self.score_position(board, 3) \
                         + self.score_position(board, 2)\
                         + self.score_position(board, [2,3]) \
-                        + self.score_position(board, [3,4]))
+                        + self.score_position(board, [3,4])))
 
         if maximisingPlayer:
             value = -math.inf
