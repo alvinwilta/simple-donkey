@@ -95,7 +95,7 @@ class MinimaxGroup15:
                     if (board[r,c] in piece) and (board [r+1,c+1] in piece) and (board[r+2,c+2] in piece) and (board[r+3,c+3] in piece):
                         return True
         else:
-            return False
+            return True
 
     def evaluate_window(self, window, piece):
         # Mengevaluasi setiap window yang dicek, untuk menghitung scorenya
@@ -164,7 +164,7 @@ class MinimaxGroup15:
                 score += self.evaluate_window(window, piece)
         return score
     #Fungsi Utama
-    def minimax(self, board, depth, alpha, beta, maximisingPlayer, piece):
+    def minimax(self, board, depth, alpha, beta, maximisingPlayer):
         valid_locations = self.get_kolom_valid(board)
         #Fungsi Terminal terjadi apabila ada kondisi yang membuat pertandingan selesai
         is_terminal = self.winning_move(board, 1) \
@@ -183,46 +183,68 @@ class MinimaxGroup15:
                     or (self.winning_move(board, 4)) \
                     or (self.winning_by_element(board, [1,4])) \
                     or (self.winning_by_element(board, [1,2]))) :
-                    return (None, 10000000) #nilai jadi sangat besar
+                    return (None, 10000000, None) #nilai jadi sangat besar
                 #Yang menang lawan
                 elif ((self.winning_move(board, 3)) \
                     or (self.winning_move(board, 2)) \
                     or (self.winning_by_element(board, [2,3])) \
                     or (self.winning_by_element(board, [3,4]))):
-                    return (None, -10000000) #nilai jadi sangat kecil
+                    return (None, -10000000, None) #nilai jadi sangat kecil
                 else:
-                    return (None, 0)
+                    return (None, 0, None)
             
             else:
                 #Mengembalikan penilaian kondisi board saat ini
                 #Untuk depth teratas, score semakin besar
-                if(piece == self.player.shape):
+                return (None, \
+                        (self.score_position(board, 1) \
+                        + self.score_position(board, 4)\
+                        + self.score_position(board, [1,4]) \
+                        + self.score_position(board, [1,2]))
+                        , \
+                        None)
+                """if(piece == self.player.shape):
                     return (None, \
                         self.score_position(board, 1) \
                         + self.score_position(board, 4)\
                         + self.score_position(board, [1,4]) \
-                        + self.score_position(board, [1,2]))
+                        + self.score_position(board, [1,2]), \
+                        None)
                 else:
                     return (None, \
                         self.score_position(board, 3) \
                         + self.score_position(board, 2)\
                         + self.score_position(board, [2,3]) \
-                        + self.score_position(board, [3,4]))
+                        + self.score_position(board, [3,4]), \
+                        None)"""
 
         if maximisingPlayer:
             value = -math.inf
             #Inisiasi kolomnya dulu supaya tidak null
             column = random.choice(valid_locations)
             for col in valid_locations:
-                row = self.get_baris_valid(board, col)
                 # Membuat copy board
                 b_copy = board.copy()
                 # Taruh piece di board jadi-jadian dan nilai kondisi sekarang
-                if (piece == self.player.shape):
+                row = self.get_baris_valid(board, col)
+                bentuknya = 1
+                #if(11 - np.count_nonzero(b_copy == 1) > 0):
+                if(self.bentuk==1):
+                    if(11 - (np.count_nonzero(b_copy == 1)) > 0):
+                        bentuknya = 1
+                    else:
+                        bentuknya = 2
+                elif(self.bentuk==2):
+                    if(10 - np.count_nonzero(b_copy == 2) > 0):
+                        bentuknya = 2
+                    else:
+                        bentuknya = 1
+                self.taruh_piece(b_copy, row, col, bentuknya)
+                """if (piece == self.player.shape):
                     self.taruh_piece(b_copy, row, col, 1)
                 else:
-                    self.taruh_piece(b_copy, row, col, 2)
-                new_score = self.minimax(b_copy, depth-1, alpha, beta, False, piece)[1]
+                    self.taruh_piece(b_copy, row, col, 2)"""
+                new_score = self.minimax(b_copy, depth-1, alpha, beta, False)[1]
                 if new_score > value:
                     value = new_score
                     # Kolom diganti dengan nilai terbaik
@@ -230,29 +252,37 @@ class MinimaxGroup15:
                 alpha = max(alpha, value)
                 if alpha >= beta:
                     break
-            return column, value
+            return column, value, bentuknya
 
         else: # Minimising player
             value = math.inf
             #Inisiasi kolomnya dulu supaya tidak null
             column = random.choice(valid_locations)
             for col in valid_locations:
-                row = self.get_baris_valid(board, col)
-                # Create a copy of the board
-                b_copy = board.copy()
-                # Taruh piece di board jadi-jadian dan nilai kondisi sekarang
-                if (piece == self.player.shape):
-                    self.taruh_piece(b_copy, row, col, 3)
-                else:
-                    self.taruh_piece(b_copy, row, col, 4)
-                new_score = self.minimax(b_copy, depth-1, alpha, beta, True, piece)[1]
-                if new_score < value:
-                    value = new_score
-                    # Kolom diganti dengan nilai terbaik
-                    column = col
-                beta = min(beta, value)
-                if alpha >= beta:
-                    break
+                for bentuknya in range (3,5):
+                    row = self.get_baris_valid(board, col)
+                    # Create a copy of the board
+                    b_copy = board.copy()
+                    if(bentuknya == 3 and (11 - np.count_nonzero(b_copy == 3) > 0)):
+                        self.taruh_piece(b_copy, row, col, bentuknya)
+                    elif(bentuknya == 4 and (10 - np.count_nonzero(b_copy == 4) > 0)):
+                        self.taruh_piece(b_copy, row, col, bentuknya)
+                    else:
+                        break
+                    # Taruh piece di board jadi-jadian dan nilai kondisi sekarang
+                    """if (piece == self.player.shape):
+                        self.taruh_piece(b_copy, row, col, 3)
+                    else:
+                        self.taruh_piece(b_copy, row, col, 4)"""
+                    #self.taruh_piece(b_copy, row, col, bentuk)
+                    new_score = self.minimax(b_copy, depth-1, alpha, beta, True)[1]
+                    if new_score < value:
+                        value = new_score
+                        # Kolom diganti dengan nilai terbaik
+                        column = col
+                    beta = min(beta, value)
+                    if alpha >= beta:
+                        break
             return column, value
     
     def salin_board_dari_state(self, board_asli, n_player):
@@ -300,20 +330,19 @@ class MinimaxGroup15:
         else:
             self.enemy = state.players[1]
         #Apabila kuota shape player masih cukup
-        if(self.player.quota[self.player.shape] > 0):
-            seed = random.randint(0,100)
-            if (seed<50):
-                kolomnya, scorenya = self.minimax(self.board, 4, -math.inf, math.inf, False, self.enemy.shape)
-                queue.put(kolomnya)
-                queue.put(self.enemy.shape)
-            else:
-                kolomnya, scorenya = self.minimax(self.board, 4, -math.inf, math.inf, True, self.player.shape)
-                queue.put(kolomnya)
-                queue.put(self.player.shape)
-        else: #kuota shape player sudah habis
-            kolomnya, scorenya = self.minimax(self.board, 4, -math.inf, math.inf, False, self.enemy.shape)
-            queue.put(kolomnya)
-            queue.put(self.enemy.shape)
+        seed = random.randint(0,state.round)
+        if (state.round > 16 and seed>(0.97*state.round)):
+            self.bentuk = 2
+        else:
+            self.bentuk = 1
+        kolomnya, scorenya, hasil_bentuk = self.minimax(self.board, 4, -math.inf, math.inf, True)
+        print("bentuk",hasil_bentuk)
+        if(hasil_bentuk == 2):
+            bentuknya = self.enemy.shape
+        else:
+            bentuknya = self.player.shape
+        queue.put(kolomnya)
+        queue.put(bentuknya)
 
     def find(self, state: State, n_player: int, thinking_time: float) -> Tuple[str, str]:
         self.thinking_time = time() + thinking_time
@@ -328,7 +357,8 @@ class MinimaxGroup15:
         
         #waktu habis, random saja
         if queue.qsize() == 0:
-            return (random.randint(0, state.board.col), random.choice([ShapeConstant.CROSS, ShapeConstant.CIRCLE]))
+            print("Random")
+            return (random.randint(0, (state.board.col -1)), random.choice([ShapeConstant.CROSS, ShapeConstant.CIRCLE]))
         else:
             #Queue memiliki isi solusi
             a = queue.get(0)

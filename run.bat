@@ -1,1 +1,1 @@
-python main.py --row 6 --col 7 --type bvb --thinking_time 3 --is_dump --bot1 "donkey.pkl" --bot2 "random-2.pkl"
+python main.py --player_choice 0 --row 6 --col 7 --type bvb --thinking_time 3 --bot1 "donkey.pkl" --bot2 "random-2.pkl"

@@ -44,8 +44,8 @@ class Game:
         if self.config.game_type == GameConstant.BVB:
             if not self.config.is_dump:
                 # You can change model used here
-                model1 = Minimax()
-                model2 = Minimax()
+                model1 = MinimaxGroup15()
+                model2 = MinimaxGroup15()
             else:
                 # Don't change this
                 print("Path.BVB_P1",Path.BVB_P1)
@@ -59,7 +59,7 @@ class Game:
         elif self.config.game_type == GameConstant.PVB:
             if not self.config.is_dump:
                 # You can change model used here
-                model = Minimax()
+                model = MinimaxGroup15()
             else:
                 # Don't change this
                 model = pickle.load(open(Path.PVB, "rb"))
