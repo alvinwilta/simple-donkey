@@ -9,16 +9,8 @@ import multiprocessing
 
 from typing import Tuple, List
 
-class Minimax:
+class MinimaxGroup15:
     def __init__(self):
-        self.board = self.create_board_kosong()
-        self.BARIS_BOARD = 6
-        self.KOLOM_BOARD = 7
-        self.PIECE_ROUND_BIRU = Piece(ShapeConstant.CIRCLE, ColorConstant.BLUE)
-        self.PIECE_ROUND_MERAH = Piece(ShapeConstant.CIRCLE, ColorConstant.RED)
-        self.PIECE_CROSS_BIRU = Piece(ShapeConstant.CROSS, ColorConstant.BLUE)
-        self.PIECE_CROSS_MERAH = Piece(ShapeConstant.CROSS, ColorConstant.RED)
-        self.PIECE_KOSONG = Piece(ShapeConstant.BLANK, ColorConstant.BLACK)
         pass
 
     def create_board_kosong(self):
@@ -264,6 +256,7 @@ class Minimax:
             return column, value
     
     def salin_board_dari_state(self, board_asli, n_player):
+        board = self.create_board_kosong()
         player_color = GameConstant.PLAYER_COLOR[n_player]
         if n_player == 0:
             #Apabila giliran pertama, jadikan piece kita property player 1
@@ -278,20 +271,27 @@ class Minimax:
         for i in range (self.BARIS_BOARD):
             for j in range (self.KOLOM_BOARD):
                 if(board_asli[i, j] == self.PIECE_KOSONG):
-                    self.board[i, j] = 0
+                    board[i, j] = 0
                 elif(board_asli[i, j] == Piece(player_shape, player_color)):
-                    self.board[i, j] = 1
+                    board[i, j] = 1
                 elif(board_asli[i, j] == Piece(player_shape, enemy_color)):
-                    self.board[i, j] = 2
+                    board[i, j] = 2
                 elif(board_asli[i, j] == Piece(enemy_shape, enemy_color)):
-                    self.board[i, j] = 3
+                    board[i, j] = 3
                 elif(board_asli[i, j] == Piece(enemy_shape, player_color)):
-                    self.board[i, j] = 4
+                    board[i, j] = 4
                 else:
-                    self.board[i, j] = 0
-        return self.board
+                    board[i, j] = 0
+        return board
 
     def Solusi(self, state, n_player, thinking_time, queue):
+        self.BARIS_BOARD = 6
+        self.KOLOM_BOARD = 7
+        self.PIECE_ROUND_BIRU = Piece(ShapeConstant.CIRCLE, ColorConstant.BLUE)
+        self.PIECE_ROUND_MERAH = Piece(ShapeConstant.CIRCLE, ColorConstant.RED)
+        self.PIECE_CROSS_BIRU = Piece(ShapeConstant.CROSS, ColorConstant.BLUE)
+        self.PIECE_CROSS_MERAH = Piece(ShapeConstant.CROSS, ColorConstant.RED)
+        self.PIECE_KOSONG = Piece(ShapeConstant.BLANK, ColorConstant.BLACK)
         #Solusi dari permasalahan minimax
         self.board = self.salin_board_dari_state(state.board, n_player)
         self.player = state.players[n_player]
@@ -301,9 +301,15 @@ class Minimax:
             self.enemy = state.players[1]
         #Apabila kuota shape player masih cukup
         if(self.player.quota[self.player.shape] > 0):
-            kolomnya, scorenya = self.minimax(self.board, 4, -math.inf, math.inf, True, self.player.shape)
-            queue.put(kolomnya)
-            queue.put(self.player.shape)
+            seed = random.randint(0,100)
+            if (seed<50):
+                kolomnya, scorenya = self.minimax(self.board, 4, -math.inf, math.inf, False, self.enemy.shape)
+                queue.put(kolomnya)
+                queue.put(self.enemy.shape)
+            else:
+                kolomnya, scorenya = self.minimax(self.board, 4, -math.inf, math.inf, True, self.player.shape)
+                queue.put(kolomnya)
+                queue.put(self.player.shape)
         else: #kuota shape player sudah habis
             kolomnya, scorenya = self.minimax(self.board, 4, -math.inf, math.inf, False, self.enemy.shape)
             queue.put(kolomnya)
@@ -327,7 +333,28 @@ class Minimax:
             #Queue memiliki isi solusi
             a = queue.get(0)
             b = queue.get(0)
-            print(a,b)
+            print("Bot Simple-donkey:",a,b)
             if (a == None):
                 return (random.randint(0, state.board.col), b)
-            return a,b
+            else:
+                return a,b
+
+import random
+from copy import deepcopy
+from time import time
+
+from src.utility import *
+from src.model import State
+
+from typing import Tuple, List
+
+class Minimax2:
+    def __init__(self):
+        pass
+
+    def find(self, state: State, n_player: int, thinking_time: float) -> Tuple[str, str]:
+        self.thinking_time = time() + thinking_time
+
+        best_movement = (random.randint(0, state.board.col), random.choice([ShapeConstant.CROSS, ShapeConstant.CIRCLE])) #minimax algorithm
+
+        return best_movement
