@@ -389,7 +389,7 @@ class MinimaxGroup15:
             b = queue.get(0)
             print("Bot Simple-donkey:",a,b)
             if (a == None):
-                return (random.randint(0, state.board.col), b)
+                return (random.randint(0, (state.board.col -1)), b)
             else:
                 return a,b
 
