@@ -14,11 +14,6 @@ class LocalSearch:
         self.papan = Board(6,7)
         self.NUM_ROW = 6
         self.NUM_COL = 7
-        # self.PIECE_ROUND_BIRU = Piece(ShapeConstant.CIRCLE, ColorConstant.BLUE)
-        # self.PIECE_ROUND_MERAH = Piece(ShapeConstant.CIRCLE, ColorConstant.RED)
-        # self.PIECE_CROSS_BIRU = Piece(ShapeConstant.CROSS, ColorConstant.BLUE)
-        # self.PIECE_CROSS_MERAH = Piece(ShapeConstant.CROSS, ColorConstant.RED)
-        # self.PIECE_KOSONG = Piece(ShapeConstant.BLANK, ColorConstant.BLACK)
         pass
     
     def get_row(self, board, col):
