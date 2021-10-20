@@ -46,7 +46,8 @@ class MinimaxGroup15:
         # Mengecek secara horizontal apakah ada kemenangan atau tidak
         for c in range(self.KOLOM_BOARD-3):
             for r in range(self.BARIS_BOARD):
-                if board[r,c] == piece and board [r,c+1] == piece and board[r,c+2] == piece and board[r,c+3] == piece:
+                if (board[r,c] == piece and board [r,c+1] == piece and board[r,c+2] == piece and board[r,c+3] == piece):
+                    print("Menang horizontal")
                     return True
 
         # Mengecek secara vertikal apakah ada kemenangan atau tidak
@@ -166,6 +167,7 @@ class MinimaxGroup15:
     #Fungsi Utama
     def minimax(self, board, depth, alpha, beta, maximisingPlayer):
         valid_locations = self.get_kolom_valid(board)
+        #print(valid_locations)
         #Fungsi Terminal terjadi apabila ada kondisi yang membuat pertandingan selesai
         kondisi1 = self.winning_move(board, 1)
         kondisi2 = self.winning_move(board, 2)
@@ -176,38 +178,18 @@ class MinimaxGroup15:
         kondisi7 = self.winning_by_element(board, [1,2])
         kondisi8 = self.winning_by_element(board, [3,4])
 
-        is_terminal = kondisi1 or kondisi2 or kondisi3 \
+        is_terminal = (kondisi1 or kondisi2 or kondisi3 \
                         or kondisi4 or kondisi5 or kondisi6 \
                         or kondisi7 or kondisi8 \
-                        or len(valid_locations) == 0
+                        or len(valid_locations) == 0)
         if depth == 0 or is_terminal:
             if is_terminal:
                 #Yang menang kita
                 if (kondisi1) or (kondisi4) or (kondisi5) or (kondisi7) :
-                    """if(kondisi5):
-                        self.bentukwajib = 1
-                    elif(kondisi7):
-                        self.bentukwajib = 2
-                        print("Kondisi 7")
-                    elif(kondisi1):
-                        self.bentukwajib = 2
-                        print("Kondisi 1")
-                    elif(kondisi4):
-                        self.bentukwajib = 1"""
-                    return (None, 10000000) #nilai jadi sangat besar
+                    return (None, (depth+1)*(10000000)) #nilai jadi sangat besar
                 #Yang menang lawan
                 elif (kondisi3) or (kondisi2) or (kondisi6) or (kondisi8):
-                    """if(kondisi6):
-                        self.bentukwajib = 1
-                    elif(kondisi8):
-                        self.bentukwajib = 2
-                        print("Kondisi 8")
-                    elif(kondisi3):
-                        self.bentukwajib = 2
-                        print("Kondisi 3")
-                    elif(kondisi2):
-                        self.bentukwajib = 1"""
-                    return (None, -10000000) #nilai jadi sangat kecil
+                    return (None, (depth+1)*(-10000000)) #nilai jadi sangat kecil
                 else:
                     return (None, 0)
             
@@ -220,20 +202,6 @@ class MinimaxGroup15:
                         + self.score_position(board, [1,4]) \
                         + self.score_position(board, [1,2]))
                        )
-                """if(piece == self.player.shape):
-                    return (None, \
-                        self.score_position(board, 1) \
-                        + self.score_position(board, 4)\
-                        + self.score_position(board, [1,4]) \
-                        + self.score_position(board, [1,2]), \
-                        None)
-                else:
-                    return (None, \
-                        self.score_position(board, 3) \
-                        + self.score_position(board, 2)\
-                        + self.score_position(board, [2,3]) \
-                        + self.score_position(board, [3,4]), \
-                        None)"""
 
         if maximisingPlayer:
             value = -math.inf
@@ -242,18 +210,13 @@ class MinimaxGroup15:
             for col in valid_locations:
                 # Membuat copy board
                 b_copy = board.copy()
+                #print(b_copy)
                 # Taruh piece di board jadi-jadian dan nilai kondisi sekarang
                 row = self.get_baris_valid(board, col)
-                #if(11 - np.count_nonzero(b_copy == 1) > 0):
                 self.taruh_piece(b_copy, row, col, self.bentuk)
-                """if (piece == self.player.shape):
-                    self.taruh_piece(b_copy, row, col, 1)
-                else:
-                    self.taruh_piece(b_copy, row, col, 2)"""
                 new_score = self.minimax(b_copy, depth-1, alpha, beta, False)[1]
                 if new_score > value:
                     value = new_score
-                    # Kolom diganti dengan nilai terbaik
                     column = col
                 alpha = max(alpha, value)
                 if alpha >= beta:
@@ -265,30 +228,6 @@ class MinimaxGroup15:
             #Inisiasi kolomnya dulu supaya tidak null
             column = random.choice(valid_locations)
             for col in valid_locations:
-                """for bentuknya in range (3,5):
-                    row = self.get_baris_valid(board, col)
-                    # Create a copy of the board
-                    b_copy = board.copy()
-                    if(bentuknya == 3):#and (11 - np.count_nonzero(b_copy == 3) > 0)):
-                        self.taruh_piece(b_copy, row, col, bentuknya)
-                    elif(bentuknya == 4): #and (10 - np.count_nonzero(b_copy == 4) > 0)):
-                        self.taruh_piece(b_copy, row, col, bentuknya)
-                    else:
-                        break
-                    # Taruh piece di board jadi-jadian dan nilai kondisi sekarang
-                    if (piece == self.player.shape):
-                        self.taruh_piece(b_copy, row, col, 3)
-                    else:
-                        self.taruh_piece(b_copy, row, col, 4)
-                    #self.taruh_piece(b_copy, row, col, bentuk)
-                    new_score = self.minimax(b_copy, depth-1, alpha, beta, True)[1]
-                    if new_score < value:
-                        value = new_score
-                        # Kolom diganti dengan nilai terbaik
-                        column = col
-                    beta = min(beta, value)
-                    if alpha >= beta:
-                        break"""
                 row = self.get_baris_valid(board, col)
                 # Create a copy of the board
                 b_copy = board.copy()
@@ -352,15 +291,17 @@ class MinimaxGroup15:
         else:
             self.enemy = state.players[1]
         #Apabila kuota shape player masih cukup
-        seed = random.randint(0,state.round)
-        if ((state.round > 16 and seed>(0.3*state.round))):
-            self.bentuk = 2
-        elif (self.player.quota[self.player.shape] > 0):
+        if(state.round>16):
+            seed = random.randint(0,state.round)
+            if (seed>(0.3*state.round)):
+                self.bentuk = 2
+            elif (self.player.quota[self.player.shape] > 0):
+                self.bentuk = 1
+            else:
+                self.bentuk = 2
+        elif(self.player.quota[self.player.shape] > 0):
             self.bentuk = 1
-        else:
-            self.bentuk = 2
-        kolomnya, scorenya = self.minimax(self.board, 4, -math.inf, math.inf, True)
-        print("bentuk",self.bentuk)
+        kolomnya = self.minimax(self.board, 4, -math.inf, math.inf, True)[0]
         if(self.bentuk == 2):
             bentuknya = self.enemy.shape
         else:
@@ -381,14 +322,15 @@ class MinimaxGroup15:
         
         #waktu habis, random saja
         if queue.qsize() == 0:
-            print("Random")
             return (random.randint(0, (state.board.col -1)), random.choice([ShapeConstant.CROSS, ShapeConstant.CIRCLE]))
+            #return (self.getkolomglobal(), random.choice([ShapeConstant.CROSS, ShapeConstant.CIRCLE]))
         else:
+            print("Minimax")
             #Queue memiliki isi solusi
             a = queue.get(0)
             b = queue.get(0)
-            print("Bot Simple-donkey:",a,b)
             if (a == None):
+                #return (random.randint(0, (state.board.col -1)), b)
                 return (random.randint(0, (state.board.col -1)), b)
             else:
                 return a,b

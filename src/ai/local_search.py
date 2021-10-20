@@ -9,7 +9,7 @@ import multiprocessing
 
 from typing import Tuple, List
 
-class LocalSearch:
+class LocalSearchGroup15:
     def __init__(self):
         self.BOARD_ROW = 6
         self.BOARD_COL = 7
