@@ -45,7 +45,7 @@ class Game:
             if not self.config.is_dump:
                 # You can change model used here
                 model1 = MinimaxGroup15()
-                model2 = MinimaxGroup15()
+                model2 = LocalSearch()
             else:
                 # Don't change this
                 print("Path.BVB_P1",Path.BVB_P1)
