@@ -9,7 +9,7 @@ import multiprocessing
 
 from typing import Tuple, List
 
-class LocalSearch:
+class LocalSearchGroup15:
     def __init__(self):
         self.BOARD_ROW = 6
         self.BOARD_COL = 7
@@ -52,8 +52,8 @@ class LocalSearch:
 
         for neighbour in neighbour_list:
             if neighbour[1] <= current[1]:
-                # Jika score lebih baik dari current
                 result.put(current)
+            # Jika score lebih baik atau sama dengan current
             current = neighbour
 
     # ngetest: aas
