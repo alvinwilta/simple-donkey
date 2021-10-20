@@ -47,7 +47,6 @@ class MinimaxGroup15:
         for c in range(self.KOLOM_BOARD-3):
             for r in range(self.BARIS_BOARD):
                 if (board[r,c] == piece and board [r,c+1] == piece and board[r,c+2] == piece and board[r,c+3] == piece):
-                    print("Menang horizontal")
                     return True
 
         # Mengecek secara vertikal apakah ada kemenangan atau tidak
@@ -167,7 +166,6 @@ class MinimaxGroup15:
     #Fungsi Utama
     def minimax(self, board, depth, alpha, beta, maximisingPlayer):
         valid_locations = self.get_kolom_valid(board)
-        #print(valid_locations)
         #Fungsi Terminal terjadi apabila ada kondisi yang membuat pertandingan selesai
         kondisi1 = self.winning_move(board, 1)
         kondisi2 = self.winning_move(board, 2)
@@ -210,7 +208,6 @@ class MinimaxGroup15:
             for col in valid_locations:
                 # Membuat copy board
                 b_copy = board.copy()
-                #print(b_copy)
                 # Taruh piece di board jadi-jadian dan nilai kondisi sekarang
                 row = self.get_baris_valid(board, col)
                 self.taruh_piece(b_copy, row, col, self.bentuk)
@@ -325,7 +322,6 @@ class MinimaxGroup15:
             return (random.randint(0, (state.board.col -1)), random.choice([ShapeConstant.CROSS, ShapeConstant.CIRCLE]))
             #return (self.getkolomglobal(), random.choice([ShapeConstant.CROSS, ShapeConstant.CIRCLE]))
         else:
-            print("Minimax")
             #Queue memiliki isi solusi
             a = queue.get(0)
             b = queue.get(0)
