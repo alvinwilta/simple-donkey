@@ -15,21 +15,8 @@ class LocalSearch:
         self.BOARD_COL = 7
         pass
     
-    def get_row(self, board, col):
-        for brs in range(board.row - 1, -1, -1):
-            if board.__getitem__([brs, col]) == Piece(ShapeConstant.BLANK, ColorConstant.BLACK):
-                return brs
-        return -1
-
-    # def copy_board(self, board) -> Board:
-    #     papan = Board(6,7)
-    #     for i in range (board.row):
-    #         for j in range (board.col):
-    #             papan.set_piece(i, j, board.__getitem__([i, j]))
-
-    #     return papan
-
     def generate_neighbour(self, state: State, player_turn, thinking_time: float):
+        # Menghasilkan list tetangga dari state awal
         player = state.players[player_turn]
         neighbour_list = []
         
@@ -45,52 +32,17 @@ class LocalSearch:
 
     def hill_climbing(self, state: State, player_turn, thinking_time: float, result):
         neighbour_list = self.generate_neighbour(state, player_turn, thinking_time)
-        # value = evaluate_board(state.board)
 
         current = neighbour_list[random.randint(0, len(neighbour_list)-1)]
         neighbour_list.sort(reverse=True, key=lambda x: x[1])
 
         for neighbour in neighbour_list:
             if neighbour[1] <= current[1]:
-                # Jika score lebih baik dari current
+                # Jika score neighbour kurang atau sama dengan current, masukkan ke hasil
                 result.put(current)
+
+            # Jika score neighbour lebih baik dari current, current menjadi neighbour
             current = neighbour
-
-    # ngetest: aas
-    # def evaluate_board(self, board: Board):
-    #     streak_way = [(-1, 0), (1, 0), (0, -1), (0, 1), (-1, -1), (-1, 1), (1, -1), (1, 1)]
-    #     scores = {0}
-    #     for row in range(board.row):
-    #         for col in range(board.col):
-    #             piece = board[row, col]
-    #             if piece.shape != ShapeConstant.BLANK:
-    #                 for prior in GameConstant.WIN_PRIOR:
-    #                     for row_ax, col_ax in streak_way:
-    #                         mark = 1
-    #                         row_ = row + row_ax
-    #                         col_ = col + col_ax
-    #                         for _ in range(GameConstant.N_COMPONENT_STREAK - 1):
-    #                             if is_out(board, row_, col_):
-    #                                 break
-
-    #                             shape_condition = (
-    #                                 prior == GameConstant.SHAPE
-    #                                 and piece.shape != board[row_, col_].shape)
-    #                             color_condition = (
-    #                                 prior == GameConstant.COLOR
-    #                                 and piece.color != board[row_, col_].color)
-    #                             if shape_condition or color_condition:
-    #                                 break
-
-    #                             row_ += row_ax
-    #                             col_ += col_ax
-    #                             mark += 1
-    #                             if mark == 4: return mark
-    #                         scores.add(mark)
-
-    #     scores_list = list(scores)
-    #     scores_list.sort(reverse = True)
-    #     return scores_list[0]
     
     def copy_board(self, board_asli, n_player):
         board = np.zeros((6,7))
@@ -204,4 +156,5 @@ class LocalSearch:
             ret_val = result.get(0)
             return ret_val[0]
         else:
+            # Jika tidak terdapat hasil, random
             return (random.randint(0, state.board.col-1), random.choice([ShapeConstant.CROSS, ShapeConstant.CIRCLE]))
